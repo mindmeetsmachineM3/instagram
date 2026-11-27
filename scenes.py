@@ -90,5 +90,47 @@ def draw(cv, sc, t, dur):
         p = pr(t, .3, 1.6)
         ring(cv, W / 2, 400, 150, p, f"{int(p * 100)}%", CYAN, 18)
         chip(cv, W / 2, 640, sc.get("label", "DONE"), 22, GREEN, INK, pr(t, 1.4, 1.9))
+    elif v == "pain":
+        chip(cv, W / 2, 130, sc["label"], 18, PINK, INK)
+        words = sc["line"].split()
+        ln, lines = "", []
+        for w_ in words:
+            if cv.tw(ln + " " + w_, "dev", 30) > 520 and ln:
+                lines.append(ln); ln = w_
+            else:
+                ln = (ln + " " + w_).strip()
+        lines.append(ln)
+        h_ = 80 + len(lines) * 50
+        a = pr(t, .1, .6)
+        cv.glass((70, 250, 650, 250 + h_), 24, fill=CARD2 + (int(255 * a),), outline=PINK + (int(200 * a),))
+        for i, l_ in enumerate(lines):
+            cv.text(W / 2, 290 + i * 50 + 20, l_, "dev", 30, WHITE + (int(255 * a),), "mm")
+        for i in range(3):
+            b_ = pr(t, .7 + i * .3, 1.2 + i * .3)
+            cv.ell(210 + i * 150, 250 + h_ + 110, 46 * b_ + 1, fill=(PINK, AMBER, VIOLET)[i])
+            icon(cv, ("chat", "cal", "bolt")[i], 210 + i * 150, 250 + h_ + 110, 22 * b_, INK)
+    elif v == "flow":
+        nodes = sc["nodes"]
+        for i, nm in enumerate(nodes):
+            a = pr(t, .2 + i * .5, .7 + i * .5)
+            yy = 170 + i * 230
+            cv.glass((110, yy, 610, yy + 150), 26, fill=CARD2 + (int(255 * a),), outline=(CYAN, VIOLET, GREEN)[i] + (int(255 * a),), glow=None)
+            cv.ell(190, yy + 75, 40, fill=(CYAN, VIOLET, GREEN)[i] + (int(255 * a),))
+            cv.text(190, yy + 75, str(i + 1), "lat", 30, INK + (int(255 * a),), "mm")
+            cv.text(260, yy + 75, nm, "dev", 31, WHITE + (int(255 * a),), "lm")
+            if i < 2 and a > .9:
+                cv.poly([(W / 2 - 16, yy + 160), (W / 2 + 16, yy + 160), (W / 2, yy + 214)], CYAN)
+    elif v == "engage":
+        a = pr(t, .2, .8)
+        cv.glass((90, 190, 630, 340), 30, fill=CARD2 + (int(255 * a),), outline=CYAN + (int(255 * a),), glow=CYAN)
+        cv.ell(160, 265, 30, fill=VIOLET + (int(255 * a),))
+        cv.text(215, 232, "your_business", "latm", 17, MUTE + (int(255 * a),), "lm")
+        cv.text(215, 285, sc["kw"], "lat", 44, CYAN + (int(255 * a),), "lm")
+        for i, (ic, lab, c) in enumerate((("chat", "COMMENT", CYAN), ("bars", "SAVE", AMBER), ("play", "SHARE", PINK))):
+            b_ = pr(t, .9 + i * .35, 1.4 + i * .35)
+            cx = 170 + i * 190
+            cv.ell(cx, 520, 56 * b_ + 1, fill=c)
+            icon(cv, ic, cx, 520, 28 * b_, INK)
+            cv.text(cx, 610, lab, "lat", 18, WHITE + (int(255 * b_),), "mm")
     elif v == "brand":
         brand_card(cv, W / 2, 440, t, handle=HANDLE)
