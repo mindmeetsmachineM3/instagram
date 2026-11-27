@@ -1,10 +1,11 @@
 name: IAA auto-post
-# Posts ONE Reel per day (next unposted video). Time below = 18:30 IST (13:00 UTC). Change the cron to change the time.
+# 4 posts a day: 09:00, 12:30, 17:00, 20:30 IST = reel, reel, carousel, reel. Edit the cron lines to change times.
 on:
   schedule:
-    - cron: "0 13 * * *"
-    - cron: "0 2 * * *"
-    - cron: "0 20 * * *"
+    - cron: "30 3 * * *"
+    - cron: "0 7 * * *"
+    - cron: "30 11 * * *"
+    - cron: "0 15 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -12,8 +13,10 @@ on:
         type: boolean
         default: true
       force:
-        description: "Optional video id to post (e.g. v1_profile_makeover)"
+        description: "Optional: post this type now"
+        type: choice
         default: ""
+        options: ["", reel, carousel]
       diagnose:
         description: "Only check the Instagram token and quota"
         type: boolean
@@ -35,6 +38,7 @@ jobs:
       CLOUDINARY_UPLOAD_PRESET: ${{ secrets.CLOUDINARY_UPLOAD_PRESET }}
       GEMINI_TTS_VOICE: ${{ vars.GEMINI_TTS_VOICE || 'Orus' }}
       IAA_HANDLE: ${{ vars.IAA_HANDLE }}
+      IAA_TTS: ${{ vars.IAA_TTS }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -55,7 +59,7 @@ jobs:
       - name: Save state
         if: ${{ success() && !inputs.diagnose && inputs.dry_run != true }}
         run: |
-          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "iaa-bot"; git config user.email "iaa-bot@users.noreply.github.com"
           git add state.json
           if git diff --cached --quiet; then echo "no change"; else
             git commit -m "state"; git pull --rebase origin "${{ github.ref_name }}" || true; git push; fi
