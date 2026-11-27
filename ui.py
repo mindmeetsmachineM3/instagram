@@ -97,6 +97,20 @@ class Cv:
         self.d.arc((self.s(cx - r), self.s(cy - r), self.s(cx + r), self.s(cy + r)), a0, a1, fill=fill, width=int(self.s(w)))
 
     def text(self, x, y, s, kind="lat", size=20, fill=WHITE, anchor="la"):
+        if is_dev(s) and any(c.isascii() and c.isalpha() for c in s):
+            parts = s.split(" ")
+            fonts = [F("dev" if is_dev(p) else "lat", size) for p in parts]
+            sp = self.d.textlength(" ", font=F("dev", size)) / S
+            ws = [self.d.textlength(p, font=f) / S for p, f in zip(parts, fonts)]
+            tot = sum(ws) + sp * (len(parts) - 1)
+            x0 = x - tot / 2 if anchor[0] == "m" else (x - tot if anchor[0] == "r" else x)
+            va = "m" + anchor[1] if anchor[1] in "mb" else "l" + anchor[1]
+            for p, f, w_ in zip(parts, fonts, ws):
+                self.d.text((self.s(x0), self.s(y)), p, font=f, fill=fill, anchor="l" + anchor[1])
+                x0 += w_ + sp
+            return
+        if is_dev(s):
+            kind = "dev"
         self.d.text((self.s(x), self.s(y)), s, font=F(kind, size), fill=fill, anchor=anchor)
 
     def tw(self, s, kind, size):
