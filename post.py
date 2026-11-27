@@ -9,7 +9,7 @@ from pathlib import Path
 import ig
 import make
 import scenes
-from scripts import VIDEOS
+from scripts import ALL as VIDEOS
 
 STATE = Path(__file__).parent / "state.json"
 
@@ -42,8 +42,9 @@ def main():
     if a.force:
         todo = [v for v in VIDEOS if v["id"] == a.force]
     if not todo:
-        print("All videos already posted. Add new videos in scripts.py (or run with reset).")
-        return
+        print("All videos posted once; starting a new cycle.")
+        st = {"posted": []}
+        todo = list(VIDEOS)
     v = todo[0]
     scenes.HANDLE = os.getenv("IAA_HANDLE", "")
     make.render(v, a.fake, Path("/tmp/iaa_tmp") / v["id"])
