@@ -153,6 +153,8 @@ def build(says, tmp, fake=False):
             raws.append(p)
     else:
         try:
+            if (os.getenv("IAA_TTS") or "gemini").lower() == "edge":
+                raise RuntimeError("IAA_TTS=edge")
             full = tmp / "g.wav"
             name = gemini(" <long pause> ".join(says), full)
             total = dur(full)
