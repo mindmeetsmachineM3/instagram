@@ -43,3 +43,17 @@ VIDEOS = [
   "caption": "रोज पोस्ट करायला वेळ नाही?\n\nप्लॅन → तयार → अ‍ॅनालिसिस, हे चक्र सिस्टीम सांभाळते. तुम्ही फक्त मंजुरी द्या.\n\nInsta Automation AI ला मेसेज करा.",
   "tags": "#instagramautomation #automation #socialmediamanagement #marathi #aitools #smallbusiness #instaautomationai"},
 ]
+
+
+# daily rotation: business automation ideas, with one explainer after every 4 businesses
+def _mix():
+    from biz import BIZ_VIDEOS
+    out, ex = [], list(VIDEOS)
+    for i, v in enumerate(BIZ_VIDEOS):
+        out.append(v)
+        if i % 4 == 3 and ex:
+            out.append(ex.pop(0))
+    return out + ex
+
+
+ALL = _mix()
