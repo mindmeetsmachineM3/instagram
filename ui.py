@@ -74,8 +74,9 @@ def background():
 
 
 class Cv:
-    def __init__(self):
-        self.im = background().copy()  # RGB so translucent fills blend
+    def __init__(self, h=H):
+        self.h = h
+        self.im = background().crop((0, 0, W * S, h * S))  # RGB so translucent fills blend
         self.d = ImageDraw.Draw(self.im, "RGBA")
 
     def s(self, v):
@@ -129,8 +130,8 @@ class Cv:
             im.putalpha(im.getchannel("A").point(lambda v: int(v * alpha)))
         self.im.paste(im, (int(x * S), int(y * S)), im)
 
-    def out(self):
-        return self.im.resize((W, H), Image.LANCZOS).convert("RGB")
+    def out(self, scale=1.0):
+        return self.im.resize((int(W * scale), int(self.h * scale)), Image.LANCZOS).convert("RGB")
 
 
 # ------------------------------------------------------------------ text with mixed Marathi + English words, **accent** words
