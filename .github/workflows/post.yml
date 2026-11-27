@@ -1,0 +1,68 @@
+name: IAA auto-post
+# Posts ONE Reel per day (next unposted video). Time below = 18:30 IST (13:00 UTC). Change the cron to change the time.
+on:
+  schedule:
+    - cron: "0 13 * * *"
+    - cron: "0 2 * * *"
+    - cron: "0 20 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Make the video but do NOT post (use for the first test)"
+        type: boolean
+        default: true
+      force:
+        description: "Optional video id to post (e.g. v1_profile_makeover)"
+        default: ""
+      diagnose:
+        description: "Only check the Instagram token and quota"
+        type: boolean
+        default: false
+concurrency:
+  group: iaa-post
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      IG_USER_ID: ${{ secrets.IG_USER_ID }}
+      IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+      CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+      CLOUDINARY_UPLOAD_PRESET: ${{ secrets.CLOUDINARY_UPLOAD_PRESET }}
+      GEMINI_TTS_VOICE: ${{ vars.GEMINI_TTS_VOICE || 'Orus' }}
+      IAA_HANDLE: ${{ vars.IAA_HANDLE }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: |
+          sudo apt-get update -y && sudo apt-get install -y ffmpeg libraqm0
+          pip install -r requirements.txt
+      - name: Diagnose
+        if: ${{ inputs.diagnose }}
+        run: python post.py --diagnose
+      - name: Make and post
+        if: ${{ !inputs.diagnose }}
+        run: |
+          ARGS=""
+          if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          if [ -n "${{ inputs.force }}" ]; then ARGS="$ARGS --force ${{ inputs.force }}"; fi
+          python post.py $ARGS
+      - name: Save state
+        if: ${{ success() && !inputs.diagnose && inputs.dry_run != true }}
+        run: |
+          git config user.name "iaa-bot"; git config user.email "iaa-bot@users.noreply.github.com"
+          git add state.json
+          if git diff --cached --quiet; then echo "no change"; else
+            git commit -m "state"; git pull --rebase origin "${{ github.ref_name }}" || true; git push; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: output
+          path: output/
+          retention-days: 7
+          if-no-files-found: ignore
