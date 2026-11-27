@@ -14,11 +14,14 @@ def big_text(cv, lines, t, y=330):
 
 def draw(cv, sc, t, dur):
     v = sc["vis"]
+    if v.startswith("tip_"):
+        import tips
+        return tips.draw_tip(cv, sc, t, dur)
     if v == "hook":
         a = pr(t, 0, .6)
         cv.ell(W / 2, 220, 52 * a + 1, fill=CYAN)
         icon(cv, "bolt", W / 2, 220, 26 * a, INK)
-        big_text(cv, sc["big"] if "big" in sc else ["?"], t)
+        big_text(cv, sc.get("big") or ["?"], t)
         cv.rr((W / 2 - 60, 560, W / 2 + 60, 566), 3, fill=VIOLET)
         for i, (ic, c) in enumerate((("eye", CYAN), ("heart", PINK), ("chat", VIOLET))):
             a = pr(t, .6 + i * .25, 1.1 + i * .25)
@@ -133,4 +136,4 @@ def draw(cv, sc, t, dur):
             icon(cv, ic, cx, 520, 28 * b_, INK)
             cv.text(cx, 610, lab, "lat", 18, WHITE + (int(255 * b_),), "mm")
     elif v == "brand":
-        brand_card(cv, W / 2, 440, t, handle=HANDLE)
+        brand_card(cv, W / 2, 440, t, line=sc.get("line", "Message us to know more"), handle=HANDLE)
