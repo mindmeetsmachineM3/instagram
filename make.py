@@ -7,7 +7,7 @@ from pathlib import Path
 import music
 import scenes
 import ui
-from scripts import BRAND, VIDEOS
+from scripts import BRAND, ALL as VIDEOS
 import voice
 
 FPS = 24
