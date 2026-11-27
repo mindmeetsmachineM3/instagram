@@ -1,0 +1,6 @@
+Pillow>=10.3
+numpy
+scipy
+requests
+edge-tts
+imageio-ffmpeg
